@@ -1,10 +1,10 @@
 from numpy import exp
-from combinedRegressor import combinedRegressor
-from default_configuration import default_configuration
+from combinedRegressor import CombinedRegressor
+from defaultConfiguration import default_configuration
 from time import time
 from random import random
 
-class autoML():
+class AutoML():
     def __init__(self, configuration = default_configuration, fitting_time = 60, training_time_penalty = 0.001, verbose=False):
         self.configuration = configuration
         self.fitting_time = fitting_time
@@ -15,7 +15,7 @@ class autoML():
     def fit(self, X, y): 
         start = time()
         T = 1
-        current = combinedRegressor(
+        current = CombinedRegressor(
             configuration = self.configuration,
             training_time_penalty=self.training_time_penalty
         )
@@ -24,7 +24,6 @@ class autoML():
         i = 0
         loop_start = time()
         loop_fitting_time = (self.fitting_time - (time() - start))*0.8
-        print(f"{loop_start - start:.2f}")
         while self.fitting_time - (time() - start) > 0:
             if self.verbose and i % 5 == 0:
                 print(
@@ -39,14 +38,13 @@ class autoML():
             else:
                 r = random()
                 if r < exp((neighbor_score - current_score)/T):
-                    print("here")
                     current = neighbor
                     current_score = neighbor_score
             if current.max_score > best.max_score:
                 best = current
             i+=1
             avg_time = (time() - loop_start)/i
-            alpha = exp(-8*avg_time/loop_fitting_time)
+            alpha = exp(-9*avg_time/loop_fitting_time)
             T = alpha**i
 
         self.regressor = best.best

@@ -55,9 +55,9 @@ default_configuration = [
         'params' : {
             'n_estimators' : {
                 'kind' : 'int',
-                'generator' : lambda : 10 + default_configuration_rng.binomial(900, 0.1),
-                'min' : 10,
-                'max' : 910
+                'generator' : lambda : 50 + default_configuration_rng.binomial(150, 0.33),
+                'min' : 50,
+                'max' : 200
             },
             'criterion' : {
                 'kind' : 'enum',
@@ -65,9 +65,9 @@ default_configuration = [
             },
             'min_impurity_decrease' : {
                 'kind' : 'float',
-                'generator' : lambda : default_configuration_rng.lognormal(mean=log(1)) - 1,
+                'generator' : lambda : default_configuration_rng.lognormal(mean=log(1), sigma=0.25) - 1,
                 'min' : 0,
-                'max' : 10
+                'max' : 1
             },         
         }
     },

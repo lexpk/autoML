@@ -2,7 +2,7 @@ from numpy.random import default_rng
 from numpy import inf, exp, log, sqrt, average
 from sklearn.model_selection import cross_val_score
 
-class combinedRegressor():
+class CombinedRegressor():
     def __init__(self, configuration, training_time_penalty=0.001, verbose=False, initialize_random=True):
         self.configuration = configuration
         self.training_time_penalty = training_time_penalty
@@ -29,7 +29,7 @@ class combinedRegressor():
                 self.changed.append(r['regressor'].__name__)
 
     def neighbor(self, temperature = 1):
-        neighbor = combinedRegressor(
+        neighbor = CombinedRegressor(
             self.configuration,
             training_time_penalty=self.training_time_penalty,
             verbose=self.verbose,
@@ -77,7 +77,7 @@ class combinedRegressor():
         while self.changed:
             r = self.changed.pop()
             regressor = getattr(self, r)
-            score = average(cross_val_score(regressor, X, y, cv=5, n_jobs=5))
+            score = average(cross_val_score(regressor, X, y, cv=5, n_jobs=-1))
             setattr(self, r + '_score', score)
         self.max_score = max([
             getattr(self, r['regressor'].__name__ + '_score')
