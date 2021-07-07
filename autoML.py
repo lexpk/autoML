@@ -5,10 +5,10 @@ from time import time
 from random import random
 
 class AutoML():
-    def __init__(self, configuration = default_configuration, fitting_time = 60, training_time_penalty = 0.001, verbose=False):
+    def __init__(self, configuration = default_configuration, fitting_time = 60, n_jobs = None, verbose=False):
         self.configuration = configuration
         self.fitting_time = fitting_time
-        self.training_time_penalty = training_time_penalty
+        self.n_jobs = n_jobs
         self.verbose = verbose
         self.regressor = None
 
@@ -17,21 +17,21 @@ class AutoML():
         T = 1
         current = CombinedRegressor(
             configuration = self.configuration,
-            training_time_penalty=self.training_time_penalty
+            n_jobs = self.n_jobs
         )
-        current_score = current.score(X, y)
-        best = current
+        current_score = current.score(X, y, verbose=self.verbose)
+        best = current.best
         i = 0
         loop_start = time()
         loop_fitting_time = (self.fitting_time - (time() - start))*0.8
         while self.fitting_time - (time() - start) > 0:
-            if self.verbose and i % 5 == 0:
+            if self.verbose and i:
                 print(
                     f"Iteration {i},\t{self.fitting_time - (time() - start):.1f}s remaining\n"
-                    f"Current: {current.max_score:.4f}\tBest: {best.max_score:.4f}"
+                    f"Current: {current.best['score']:.4f}\tBest: {best['score']:.4f}\n"
                 )
             neighbor = current.neighbor(temperature=T)
-            neighbor_score = neighbor.score(X, y)
+            neighbor_score = neighbor.score(X, y, verbose=self.verbose)
             if neighbor_score > current_score:
                 current = neighbor
                 current_score = neighbor_score
@@ -40,15 +40,14 @@ class AutoML():
                 if r < exp((neighbor_score - current_score)/T):
                     current = neighbor
                     current_score = neighbor_score
-            if current.max_score > best.max_score:
-                best = current
+            if current.best['score'] > best['score']:
+                best = current.best
             i+=1
             avg_time = (time() - loop_start)/i
-            alpha = exp(-9*avg_time/loop_fitting_time)
+            alpha = exp(-10*avg_time/loop_fitting_time)
             T = alpha**i
-
-        self.regressor = best.best
-        self.regressor.fit(X, y)
+        self.regressor = best['regressor'].fit(X, y)
+        return self.regressor
     
     def predict(self, X):
         return self.regressor.predict(X)
@@ -60,12 +59,12 @@ class AutoML():
         return {
             'configuration' : self.configuration,
             'fitting_time' : self.fitting_time,
-            'training_time_penalty' : self.training_time_penalty,
+            'n_jobs' : self.n_jobs,
             'verbose' : self.verbose
         }
 
     def set_params(self, params):
         self.configuration = params['configuration']
         self.fitting_time = params['fitting_time']
-        self.training_time_penalty = params['training_time_penalty']
+        self.n_jobs = params['n_jobs']
         self.verbose = params['verbose']
