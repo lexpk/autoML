@@ -166,7 +166,7 @@ default_configuration = [
                 'kind' : 'int',
                 'generator' : lambda : 16 + 16*default_configuration_rng.lognormal(mean=log(1)),
                 'min' : 16,
-                'max' : 128
+                'max' : 64
             },
             'max_iter' : {
                 'hidden' : False,

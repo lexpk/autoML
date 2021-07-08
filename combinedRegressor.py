@@ -84,8 +84,6 @@ class CombinedRegressor():
                 neighbor.changed.append(i)
         return neighbor
 
-
-    @ignore_warnings(category=ConvergenceWarning)
     def score(self, X, y, verbose=False):
         while self.changed:
             i = self.changed.pop()
@@ -95,7 +93,6 @@ class CombinedRegressor():
                 y,
                 cv=5,
                 n_jobs=self.n_jobs,
-                pre_dispatch='n_jobs'
             ))
             if verbose:
                 print(
