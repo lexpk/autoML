@@ -3,6 +3,8 @@ from numpy import inf, exp, log, sqrt, average
 from sklearn.model_selection import cross_val_score
 from sklearn.utils._testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 class CombinedRegressor():
     def __init__(self, configuration, n_jobs = None, verbose=False, initialize_random=True):
@@ -75,9 +77,9 @@ class CombinedRegressor():
                     param = neighbor.configuration[i]['params'][p] 
                     if param['kind'] in ['computed'] :
                         neighbor.regressors[i]['params'][p] = param['generator']([neighbor.regressors[i]['params'][x] for x in param['arguments']]) 
-                neighbor.regressors[i]['regressor'] = neighbor.configuration[i]['regressor'](
+                neighbor.regressors[i]['regressor'] = make_pipeline(StandardScaler(), neighbor.configuration[i]['regressor'](
                     **{k : v for k, v in neighbor.regressors[i]['params'].items() if not neighbor.configuration[i]['params'][k]['hidden']}
-                )
+                ))
                 neighbor.regressors[i]['score'] = -inf
                 neighbor.changed.append(i)
         return neighbor
@@ -96,7 +98,10 @@ class CombinedRegressor():
                 pre_dispatch='n_jobs'
             ))
             if verbose:
-                print(self.regressors[i])
+                print(
+                    f"{self.regressors[i]['regressor']}"
+                    f", score: {self.regressors[i]['score']:.4f}\n"
+                )
         self.best = max(self.regressors, key=lambda x : x['score'])
         return sum([
             min(

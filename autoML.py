@@ -46,6 +46,8 @@ class AutoML():
             avg_time = (time() - loop_start)/i
             alpha = exp(-10*avg_time/loop_fitting_time)
             T = alpha**i
+        if self.verbose:
+            print(best['regressor'])
         self.regressor = best['regressor'].fit(X, y)
         return self.regressor
     

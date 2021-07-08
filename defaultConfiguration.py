@@ -4,10 +4,13 @@ from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 default_configuration_rng = default_rng()
 default_configuration = [
     {   
+        'name' : 'AdaBoostRegressor',
         'regressor' : AdaBoostRegressor, 
         'params' : {
             'n_estimators' : {
@@ -32,6 +35,7 @@ default_configuration = [
         }
     },
     {
+        'name' : 'SVR',
         'regressor' : SVR, 
         'params' : {
             'tol' : {
@@ -58,6 +62,7 @@ default_configuration = [
         }
     },
     {
+        'name' : 'KNeighborsRegressor',
         'regressor' : KNeighborsRegressor, 
         'params' : {
             'n_neighbors' : {
@@ -82,6 +87,7 @@ default_configuration = [
         }
     },
     {
+        'name' : 'RandomForestRegressor',
         'regressor' : RandomForestRegressor, 
         'params' : {
             'n_estimators' : {
@@ -125,6 +131,7 @@ default_configuration = [
         }
     },
     {
+        'name' : 'MLPRegressor',
         'regressor' : MLPRegressor, 
         'params' : {
             'hidden_layer_sizes' : {
